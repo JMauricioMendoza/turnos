@@ -37,6 +37,9 @@ func SetupRouter() *gin.Engine {
 
 		// Turnos
 		auth.POST("/turno/crear", CrearTurno)
+		auth.GET("/turno/obtener/recepcion", ObtenerTurnosEnRecepcion)
+		auth.GET("/turno/obtener/atencion", ObtenerTurnosEnAtencion)
+		auth.GET("/turno/obtener/todos", ObtenerTurnosTodos)
 
 		// Roles
 		auth.GET("/rol/obtener/activos", ObtenerRolesActivos)
