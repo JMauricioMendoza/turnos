@@ -34,6 +34,12 @@ func SetupRouter() *gin.Engine {
 
 		// Usuarios
 		auth.POST("/CrearUsuario", CrearUsuario)
+
+		// Roles
+		auth.GET("/ObtenerRolesActivos", ObtenerRolesActivos)
+
+		// Actividades
+		auth.GET("/ObtenerActividadesActivas", ObtenerActividadesActivas)
 	}
 
 	return r

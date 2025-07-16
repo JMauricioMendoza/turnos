@@ -13,7 +13,7 @@ import (
 func CrearUsuario(c *gin.Context) {
 	nombreRol, existe := c.Get("rol")
 	if !existe || nombreRol != "Root" {
-		utils.RespuestaJSON(c, http.StatusUnauthorized, "Rol no autorizado para crear usuarios.")
+		utils.RespuestaJSON(c, http.StatusUnauthorized, "Rol no autorizado para esta acción.")
 		return
 	}
 
