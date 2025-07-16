@@ -22,27 +22,27 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.GET("/Test", Test)
-	r.POST("/IniciarSesion", IniciarSesion)
-	r.GET("/CerrarSesion/:usuario_id", CerrarSesion)
+	r.GET("/test", Test)
+	r.POST("/sesion/crear", IniciarSesion)
+	r.DELETE("/sesion/eliminar/:usuario_id", CerrarSesion)
 
 	auth := r.Group("/")
 	auth.Use(middleware.AutenticacionMiddleware())
 	{
 		//Sesiones
-		auth.GET("/ObtenerUsuarioActual", ObtenerUsuarioActual)
+		auth.GET("/sesion/obtener/", ObtenerUsuarioActual)
 
 		// Usuarios
-		auth.POST("/CrearUsuario", CrearUsuario)
+		auth.POST("/usuario/crear", CrearUsuario)
 
 		// Turnos
-		auth.POST("/CrearTurno", CrearTurno)
+		auth.POST("/turno/crear", CrearTurno)
 
 		// Roles
-		auth.GET("/ObtenerRolesActivos", ObtenerRolesActivos)
+		auth.GET("/rol/obtener/activos", ObtenerRolesActivos)
 
 		// Actividades
-		auth.GET("/ObtenerActividadesActivas", ObtenerActividadesActivas)
+		auth.GET("/actividades/obtener/activos", ObtenerActividadesActivas)
 	}
 
 	return r
