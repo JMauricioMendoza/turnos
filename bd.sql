@@ -1,4 +1,15 @@
 -- ----------------------------
+-- Type structure for estatus_turno
+-- ----------------------------
+DROP TYPE IF EXISTS "public"."estatus_turno";
+CREATE TYPE "public"."estatus_turno" AS ENUM (
+  'recepcion',
+  'atencion',
+  'concluido'
+);
+ALTER TYPE "public"."estatus_turno" OWNER TO "postgres";
+
+-- ----------------------------
 -- Sequence structure for actividades_id_seq
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."actividades_id_seq";
@@ -69,6 +80,18 @@ CREATE TABLE "public"."roles" (
 ;
 
 -- ----------------------------
+-- Table structure for sesiones
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."sesiones";
+CREATE TABLE "public"."sesiones" (
+  "usuario_id" int4 NOT NULL,
+  "token" varchar(36) COLLATE "pg_catalog"."default" NOT NULL,
+  "expira_en" timestamp(0) NOT NULL,
+  "creado_en" timestamp(0) NOT NULL DEFAULT now()
+)
+;
+
+-- ----------------------------
 -- Table structure for turnos
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."turnos";
@@ -81,7 +104,10 @@ CREATE TABLE "public"."turnos" (
   "tiempo_fin_atencion" timestamp(0),
   "usuario_recepcion_id" int4 NOT NULL,
   "usuario_inicio_atencion_id" int4,
-  "usuario_fin_atencion_id" int4
+  "usuario_fin_atencion_id" int4,
+  "creado_en" timestamp(0) NOT NULL DEFAULT now(),
+  "actualizado_en" timestamp(0),
+  "estatus" "public"."estatus_turno" NOT NULL
 )
 ;
 
@@ -92,7 +118,7 @@ DROP TABLE IF EXISTS "public"."usuarios";
 CREATE TABLE "public"."usuarios" (
   "id" int4 NOT NULL DEFAULT nextval('usuarios_id_seq'::regclass),
   "usuario" varchar(25) COLLATE "pg_catalog"."default" NOT NULL,
-  "nombre_completo" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "nombre_completo" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
   "password" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "estatus" bool NOT NULL DEFAULT true,
   "actividad_id" int4 NOT NULL,
@@ -146,6 +172,11 @@ ALTER TABLE "public"."turnos" ADD CONSTRAINT "turnos_pkey" PRIMARY KEY ("id");
 -- Primary Key structure for table usuarios
 -- ----------------------------
 ALTER TABLE "public"."usuarios" ADD CONSTRAINT "usuarios_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Foreign Keys structure for table sesiones
+-- ----------------------------
+ALTER TABLE "public"."sesiones" ADD CONSTRAINT "sesiones_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuarios" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- ----------------------------
 -- Foreign Keys structure for table turnos
