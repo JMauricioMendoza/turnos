@@ -117,8 +117,7 @@ func ObtenerTurnosEnRecepcion(c *gin.Context) {
 		WHERE
 			a.id = $1
 			AND t.tiempo_recepcion::DATE = NOW()::DATE
-			AND t.tiempo_inicio_atencion IS NULL
-			AND t.tiempo_fin_atencion IS NULL
+			AND t.estatus = 'recepcion'
 		ORDER BY
 			t.tiempo_recepcion ASC`,
 		actividadUsuario)
@@ -184,9 +183,8 @@ func ObtenerTurnosEnAtencion(c *gin.Context) {
 			INNER JOIN actividades a ON t.actividad_id = a.id
 		WHERE
 			t.usuario_inicio_atencion_id = $1
-			AND t.tiempo_recepcion IS NOT NULL
 			AND t.tiempo_inicio_atencion::DATE = NOW()::DATE
-			AND t.tiempo_fin_atencion IS NULL
+			AND t.estatus = 'atencion'
 		ORDER BY
 			t.numero_turno ASC`,
 		usuarioID)
@@ -245,7 +243,8 @@ func ObtenerTurnosTodos(c *gin.Context) {
 			t.tiempo_fin_atencion,
 			ur.nombre_completo,
 			ui.nombre_completo,
-			uf.nombre_completo
+			uf.nombre_completo,
+			t.estatus
 		FROM
 			turnos t
 			INNER JOIN actividades a ON t.actividad_id = a.id
@@ -277,8 +276,9 @@ func ObtenerTurnosTodos(c *gin.Context) {
 			&turno.UsuarioRecepcionNombre,
 			&turno.UsuarioInicioAtencionNombre,
 			&turno.UsuarioFinAtencionNombre,
+			&turno.Estatus,
 		); err != nil {
-			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+			utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al escanear turno: "+err.Error())
 			return
 		}
 		turnos = append(turnos, turno)
