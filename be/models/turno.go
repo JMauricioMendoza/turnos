@@ -15,6 +15,7 @@ type Turno struct {
 	UsuarioRecepcionNombre      string  `json:"usuario_recepcion"`
 	UsuarioInicioAtencionNombre *string `json:"usuario_inicio_atencion"`
 	UsuarioFinAtencionNombre    *string `json:"usuario_fin_atencion"`
+	Estatus                     string  `json:"estatus"`
 }
 
 func (u *Turno) ValidarTurno(Turno) error {
