@@ -21,7 +21,7 @@ func CrearUsuario(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar la transacción: "+err.Error())
 		return
 	}
 
@@ -47,7 +47,7 @@ func CrearUsuario(c *gin.Context) {
 	queryCheck := "SELECT EXISTS (SELECT 1 FROM usuarios WHERE usuario = $1)"
 	err = tx.QueryRow(queryCheck, usuario.Usuario).Scan(&existe)
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al verificar la existencia del usuario: "+err.Error())
 		return
 	}
 	if existe {
@@ -56,7 +56,7 @@ func CrearUsuario(c *gin.Context) {
 	}
 
 	if err := usuario.HashearPassword(); err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al hashear la contraseña: "+err.Error())
 		return
 	}
 
@@ -64,14 +64,14 @@ func CrearUsuario(c *gin.Context) {
 	err = tx.QueryRow(query, usuario.Usuario, usuario.NombreCompleto, usuario.Password, usuario.ActividadID, usuario.RolID, usuario.Mesa).Scan(&usuario.ID)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al crear el usuario: "+err.Error())
 		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al confirmar la transacción: "+err.Error())
 		return
 	}
 

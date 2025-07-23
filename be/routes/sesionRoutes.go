@@ -16,7 +16,7 @@ func IniciarSesion(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar la transacción: "+err.Error())
 		return
 	}
 
@@ -53,21 +53,21 @@ func IniciarSesion(c *gin.Context) {
 	_, err = tx.Exec("DELETE FROM sesiones WHERE usuario_id = $1", usuario.ID)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al eliminar sesiones anteriores: "+err.Error())
 		return
 	}
 
 	_, err = tx.Exec("INSERT INTO sesiones (usuario_id, token, expira_en) VALUES ($1, $2, (SELECT now() + interval '1 hour'))", usuario.ID, token)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al crear la sesión: "+err.Error())
 		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al confirmar la transacción: "+err.Error())
 		return
 	}
 
@@ -85,7 +85,7 @@ func ObtenerUsuarioActual(c *gin.Context) {
 	`, usuarioID).Scan(&nombre)
 
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al obtener el usuario actual: "+err.Error())
 		return
 	}
 
@@ -107,7 +107,7 @@ func CerrarSesion(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar la transacción: "+err.Error())
 		return
 	}
 
@@ -124,7 +124,7 @@ func CerrarSesion(c *gin.Context) {
 	queryCheck := "SELECT EXISTS (SELECT 1 FROM sesiones WHERE usuario_id = $1)"
 	err = tx.QueryRow(queryCheck, usuarioId).Scan(&existe)
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al verificar la sesión: "+err.Error())
 		return
 	}
 	if !existe {
@@ -135,14 +135,14 @@ func CerrarSesion(c *gin.Context) {
 	_, err = tx.Exec("DELETE FROM sesiones WHERE usuario_id = $1", usuarioId)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al eliminar la sesión: "+err.Error())
 		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al confirmar la transacción: "+err.Error())
 		return
 	}
 

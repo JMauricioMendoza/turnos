@@ -18,7 +18,7 @@ func ObtenerRolesActivos(c *gin.Context) {
 
 	rows, err := database.DB.Query("SELECT id, nombre FROM roles WHERE estatus IS TRUE ORDER BY nombre ASC")
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al obtener los roles: "+err.Error())
 		return
 	}
 	defer rows.Close()
@@ -27,13 +27,13 @@ func ObtenerRolesActivos(c *gin.Context) {
 	for rows.Next() {
 		var rol models.Rol
 		if err := rows.Scan(&rol.ID, &rol.Nombre); err != nil {
-			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+			utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al escanear el rol: "+err.Error())
 			return
 		}
 		roles = append(roles, rol)
 	}
 	if err = rows.Err(); err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iterar sobre los roles: "+err.Error())
 		return
 	}
 	utils.RespuestaJSON(c, http.StatusOK, "Roles obtenidos exitosamente.", roles)

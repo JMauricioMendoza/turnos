@@ -27,7 +27,7 @@ func CrearTurno(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar transacción en BD: "+err.Error())
 		return
 	}
 
@@ -50,18 +50,18 @@ func CrearTurno(c *gin.Context) {
 		return
 	}
 
-	query := "INSERT INTO turnos (numero_turno, actividad_id, usuario_recepcion_id) VALUES ($1, $2, $3)"
+	query := "INSERT INTO turnos (numero_turno, actividad_id, usuario_recepcion_id, estatus) VALUES ($1, $2, $3, 'recepcion')"
 	_, err = tx.Exec(query, turno.NumeroTurno, turno.ActividadID, usuarioID)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al insertar turno: "+err.Error())
 		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error en el commit: "+err.Error())
 		return
 	}
 
@@ -85,7 +85,7 @@ func ObtenerTurnosEnRecepcion(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar transacción en BD: "+err.Error())
 		return
 	}
 	defer func() {
@@ -101,7 +101,7 @@ func ObtenerTurnosEnRecepcion(c *gin.Context) {
 	err = tx.QueryRow(query, usuarioID).Scan(&actividadUsuario)
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al obtener actividad del usuario: "+err.Error())
 		return
 	}
 
@@ -125,7 +125,7 @@ func ObtenerTurnosEnRecepcion(c *gin.Context) {
 
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al consultar turnos en recepción: "+err.Error())
 		return
 	}
 	defer rows.Close()
@@ -134,13 +134,13 @@ func ObtenerTurnosEnRecepcion(c *gin.Context) {
 	for rows.Next() {
 		var turno models.Turno
 		if err := rows.Scan(&turno.ID, &turno.NumeroTurno, &turno.ActividadNombre, &turno.TiempoRecepcion); err != nil {
-			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+			utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al escanear turno: "+err.Error())
 			return
 		}
 		turnos = append(turnos, turno)
 	}
 	if err = rows.Err(); err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iterar sobre los resultados: "+err.Error())
 		return
 	}
 	utils.RespuestaJSON(c, http.StatusOK, "Turnos obtenidos exitosamente.", turnos)
@@ -161,7 +161,7 @@ func ObtenerTurnosEnAtencion(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar transacción en BD: "+err.Error())
 		return
 	}
 	defer func() {
@@ -193,7 +193,7 @@ func ObtenerTurnosEnAtencion(c *gin.Context) {
 
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al consultar turnos en atención: "+err.Error())
 		return
 	}
 	defer rows.Close()
@@ -202,13 +202,13 @@ func ObtenerTurnosEnAtencion(c *gin.Context) {
 	for rows.Next() {
 		var turno models.Turno
 		if err := rows.Scan(&turno.ID, &turno.NumeroTurno, &turno.ActividadNombre, &turno.TiempoRecepcion); err != nil {
-			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+			utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al escanear turno: "+err.Error())
 			return
 		}
 		turnos = append(turnos, turno)
 	}
 	if err = rows.Err(); err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iterar sobre los resultados: "+err.Error())
 		return
 	}
 	utils.RespuestaJSON(c, http.StatusOK, "Turnos obtenidos exitosamente.", turnos)
@@ -223,7 +223,7 @@ func ObtenerTurnosTodos(c *gin.Context) {
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iniciar transacción en BD: "+err.Error())
 		return
 	}
 	defer func() {
@@ -259,7 +259,7 @@ func ObtenerTurnosTodos(c *gin.Context) {
 
 	if err != nil {
 		_ = tx.Rollback()
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al consultar todos los turnos: "+err.Error())
 		return
 	}
 	defer rows.Close()
@@ -284,7 +284,7 @@ func ObtenerTurnosTodos(c *gin.Context) {
 		turnos = append(turnos, turno)
 	}
 	if err = rows.Err(); err != nil {
-		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
+		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error al iterar sobre los resultados: "+err.Error())
 		return
 	}
 	utils.RespuestaJSON(c, http.StatusOK, "Turnos obtenidos exitosamente.", turnos)
